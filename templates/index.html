@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+             text-align: center;
+        }
+
+        ul {
+            margin:0;
+            padding:0;
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        <h2>학생 점수 관리 시스템</h2>
+        <img src = "{{ url_for('static', filename='jumpingcat.jpeg') }}"><br><br>
+        학생 이름 : <input id="grade-name"> 국어 : <input id="grade-korean"> 수학 : <input id="grade-math"> 영어 : <input id="grade-english">
+        <br>
+        <br>
+        <button id="save-btn" onclick="SavebtnClick()">저장</button>
+        <button id="edit-btn" onclick="EditbtnClick()">수정</button>
+        <button id="delete-btn" onclick="DeletebtnClick()">삭제</button>
+        <br>
+        <br>
+        국어 : <input type="radio" name="chk_info" value="koreangrade">
+        수학 : <input type="radio" name="chk_info" value="mathgrade">
+        영어 : <input type="radio" name="chk_info" value="englishgrade">
+        <button onclick="SortbtnClick()">정렬</button>
+        <br>
+        <br><br><br>
+        <ul id="score-list"></ul>
+    </div>
+
+
+    <script>
+            $.ajax({
+                type: "GET",
+                url: "/student_score",
+                data: {},
+                success: function(response) {
+                    for (let grade of response) {
+                        $("#score-list").append(`
+                            <li>
+                                이름 : ${grade.name}, 국어 : ${grade.kor}, 수학 : ${grade.math}, 영어 : ${grade.eng}
+                            </li>
+                        `)
+                    }
+                }
+            })
+
+            function SavebtnClick() {
+                const clientName = $("#grade-name").val()
+                const clientKor = $("#grade-korean").val()
+                const clientMath = $("#grade-math").val()
+                const clientEng = $("#grade-english").val()
+                $.ajax({
+                    type: "POST",
+                    url: "/student_score",
+                    data: {
+                        name: clientName,
+                        kor: clientKor,
+                        math: clientMath,
+                        eng: clientEng
+                    },
+                    success: function(response) {
+                        location.reload()
+                    }
+                 })
+            }
+
+            function EditbtnClick() {
+                const clientName = $("#grade-name").val()
+                const clientKor = $("#grade-korean").val()
+                const clientMath = $("#grade-math").val()
+                const clientEng = $("#grade-english").val()
+
+                let checked = $('input[name=chk_info]:checked').val();
+                $.ajax({
+                        type: "PUT",
+                        url: "/student_score",
+                        data: {
+                            name: clientName,
+                            kor: clientKor,
+                            math: clientMath,
+                            eng: clientEng
+                        },
+                        success: function(response) {
+                            location.reload()
+                        }
+                    })
+                }
+
+
+            function DeletebtnClick() {
+                let checked = $('input[name=chk_info]:checked').val();
+                const clientName = $("#grade-name").val()
+                $.ajax({
+                    type: "DELETE",
+                    url: `/student_score?name=${clientName}`,
+                    data: {},
+                    success: function(response) {
+                        location.reload()
+                    }
+                })
+            }
+
+<!--            function SortbtnClick() {-->
+<!--                let checked = $('input[name=chk_info]:checked').val();-->
+<!--                if (checked === "koreangrade") {-->
+<!--                  $("#score-list").sort((a,b)=>{return b[2] - a[2]})-->
+<!--                }-->
+
+<!--                if (checked === "mathgrade" )  {-->
+<!--                  $("#score-list").sort((a,b)=>{return b[3]-a.math[3]})-->
+<!--                }-->
+
+<!--                if (checked === "englishgrade") {-->
+<!--                  $("#score-list").sort((a,b)=>{return b[4]-a[4]})-->
+<!--                }-->
+<!--            }-->
+
+
+    </script>
+</body>
+</html>
+
